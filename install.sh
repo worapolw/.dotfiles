@@ -9,6 +9,33 @@ if [ "$(uname)" == "Darwin" ]; then
         fish -c "fish_add_path /opt/homebrew/bin"
     fi
     brew bundle install
+elif [ "$(uname)" == "Linux" ]; then
+    if [[ "$(lsb_release -i)" == *"Ubuntu"* ]]; then
+        echo "Ni hao"
+        sudo apt update && sudo apt -y upgrade
+        # install bat
+        sudo apt install -y bat
+        # install eza
+        sudo apt install -y gpg
+        sudo mkdir -p /etc/apt/keyrings
+        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+        sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+        sudo apt update
+        sudo apt install -y eza
+        # install fzf
+        sudo apt install fzf
+        # install git
+        sudo apt install git-all
+        # install ripgrep
+        sudo apt install ripgrep
+        # install vim
+        sudo apt install -y vim
+        # install tmux
+        sudo apt install -y tmux
+        # install ghostty
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
+    fi
 fi
 
 # tmux plugin
@@ -39,4 +66,4 @@ if [ "$(ls ~/.vim/autoload | grep plug.vim)" == "" ]; then
 fi
 
 cp ./vim/.vimrc ~/.vimrc
-cp -r ./vim/.vim ~/.vim
+cp -r ./vim/.vim ~/
