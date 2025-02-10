@@ -11,10 +11,12 @@ if [ "$(uname)" == "Darwin" ]; then
     brew bundle install
 elif [ "$(uname)" == "Linux" ]; then
     if [[ "$(lsb_release -i)" == *"Ubuntu"* ]]; then
-        echo "Ni hao"
+        sudo apt install libtinfo6
+        cd ~/Downloads && curl -LO https://launchpad.net/~fish-shell/+archive/ubuntu/release-3/+files/fish_3.7.1-1~xenial_amd64.deb && sudo dpkg -i ~/Downloads/fish_3.7.1-1~xenial_amd64.deb
         sudo apt update && sudo apt -y upgrade
         # install bat
         sudo apt install -y bat
+        alias --save bat batcat
         # install eza
         sudo apt install -y gpg
         sudo mkdir -p /etc/apt/keyrings
