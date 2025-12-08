@@ -12,8 +12,11 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(uname)" == "Linux" ]; then
     DISTRO=$(sudo cat /etc/os-release | head -1 | sed 's/\(NAME=\|"\)//g')
     if [[ "$DISTRO" == *"Ubuntu"* ]]; then
+        FISH_DEB="fish_4.2.1-1~$(lsb_release -sc)_$(dpkg --print-architecture).deb"
         sudo apt install libtinfo6
-        curl --output-dir ~/Downloads -LO https://launchpad.net/~fish-shell/+archive/ubuntu/release-3/+files/fish_3.7.1-1~xenial_amd64.deb && sudo dpkg -i ~/Downloads/fish_3.7.1-1~xenial_amd64.deb
+        curl --output-dir ~/Downloads -LO https://launchpad.net/~fish-shell/+archive/ubuntu/release-4/+files/$FISH_DEB \
+            && sudo dpkg -i ~/Downloads/$FISH_DEB \
+            && rm -rf ~/Downloads/$FISH_DEB
         sudo apt update && sudo apt -y upgrade
         # install bat
         sudo apt install -y bat
