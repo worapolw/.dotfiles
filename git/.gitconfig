@@ -1,2 +1,7 @@
 [alias]
     graph = log --all --decorate --oneline --graph
+[user]
+    name = Worapol Worakunsap
+    email = worapol.wor11@gmail.com
+[core]
+    editor = vim
