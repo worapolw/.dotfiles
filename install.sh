@@ -10,9 +10,13 @@ if [ "$(uname)" == "Darwin" ]; then
     fi
     brew bundle install
 elif [ "$(uname)" == "Linux" ]; then
-    if [[ "$(lsb_release -i)" == *"Ubuntu"* ]]; then
+    DISTRO=$(sudo cat /etc/os-release | head -1 | sed 's/\(NAME=\|"\)//g')
+    if [[ "$DISTRO" == *"Ubuntu"* ]]; then
+        FISH_DEB="fish_4.2.1-1~$(lsb_release -sc)_$(dpkg --print-architecture).deb"
         sudo apt install libtinfo6
-        curl --output-dir ~/Downloads -LO https://launchpad.net/~fish-shell/+archive/ubuntu/release-3/+files/fish_3.7.1-1~xenial_amd64.deb && sudo dpkg -i ~/Downloads/fish_3.7.1-1~xenial_amd64.deb
+        curl --output-dir ~/Downloads -LO https://launchpad.net/~fish-shell/+archive/ubuntu/release-4/+files/$FISH_DEB \
+            && sudo dpkg -i ~/Downloads/$FISH_DEB \
+            && rm -rf ~/Downloads/$FISH_DEB
         sudo apt update && sudo apt -y upgrade
         # install bat
         sudo apt install -y bat
@@ -37,7 +41,15 @@ elif [ "$(uname)" == "Linux" ]; then
         # install ghostty
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
 
-        cp ./fish/linux_functions/* ~/.config/fish/functions/
+    fi
+    if [[ "$DISTRO" == *"Fedora"* ]]; then
+        sudo dnf update -y
+        sudo dnf install fish fzf ripgrep vim tmux -y
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | bash -s -- -y
+        . "$HOME/.cargo/env"
+        fish -c "source $HOME/.cargo/env.fish"
+        cargo install eza
     fi
 fi
 
@@ -61,7 +73,6 @@ cp ./.bashrc ~/.bashrc
 cp ./.bashrc ~/.zshrc
 
 # fish alias 
-cp ./fish/functions/* ~/.config/fish/functions/
 
 # download vim plug plugin
 if [ "$(ls ~/.vim/autoload | grep plug.vim)" == "" ]; then

@@ -26,6 +26,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'mbbill/undotree'
+Plug 'vimoxide/vim-cinnabar'
 call plug#end()
 
 
@@ -34,4 +35,4 @@ if (has("termguicolors"))
 endif
 syntax enable
 
-colorscheme night-owl
+colorscheme cinnabar
