@@ -44,7 +44,7 @@ elif [ "$(uname)" == "Linux" ]; then
     fi
     if [[ "$DISTRO" == *"Fedora"* ]]; then
         sudo dnf update -y
-        sudo dnf install fish fzf ripgrep vim tmux -y
+        sudo dnf install fish fzf ripgrep vim tmux @development-tools -y
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | bash -s -- -y
         . "$HOME/.cargo/env"
@@ -77,6 +77,7 @@ if ! grep -q "alias ls=eza" ~/.zshrc; then
 fi
 
 # fish alias 
+fish -c "alias --save ls eza"
 
 # download vim plug plugin
 if [ "$(ls ~/.vim/autoload | grep plug.vim)" == "" ]; then
