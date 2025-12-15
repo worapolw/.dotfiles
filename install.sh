@@ -67,10 +67,14 @@ fi
 cp ./git/.gitconfig ~/.gitconfig
 
 # bashrc
-cp ./.bashrc ~/.bashrc
+if ! grep -q "alias ls=eza" ~/.bashrc; then
+    echo -e "alias ls=eza" >> ~/.bashrc
+fi
 
 # zshrc
-cp ./.bashrc ~/.zshrc
+if ! grep -q "alias ls=eza" ~/.zshrc; then
+    echo -e "alias ls=eza" >> ~/.zshrc
+fi
 
 # fish alias 
 
