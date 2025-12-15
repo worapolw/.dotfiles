@@ -38,19 +38,34 @@ elif [ "$(uname)" == "Linux" ]; then
         sudo apt install -y vim
         # install tmux
         sudo apt install -y tmux
-        # install ghostty
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
+        # install dependencies for alacritty
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | bash -s -- -y
+        sudo apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
 
     fi
     if [[ "$DISTRO" == *"Fedora"* ]]; then
         sudo dnf update -y
         sudo dnf install fish fzf ripgrep vim tmux @development-tools -y
+        # install rustc + cargo
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | bash -s -- -y
         . "$HOME/.cargo/env"
         fish -c "source $HOME/.cargo/env.fish"
         cargo install eza
+        # install dependencies for alacritty
+        sudo dnf install cmake freetype-devel fontconfig-devel libxcb-devel libxkbcommon-devel g++ -y
     fi
+    # Install alacritty
+    git clone https://github.com/alacritty/alacritty.git
+    cd alacritty
+    cargo build --release
+    infocmp alacritty
+    sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
+    sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
+    sudo desktop-file-install extra/linux/Alacritty.desktop
+    sudo update-desktop-database
+    cd ..
 fi
 
 # tmux plugin
@@ -86,3 +101,4 @@ fi
 
 cp ./vim/.vimrc ~/.vimrc
 cp -r ./vim/.vim ~/
+
