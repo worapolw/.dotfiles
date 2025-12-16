@@ -62,7 +62,9 @@ elif [ "$(uname)" == "Linux" ]; then
     git clone https://github.com/alacritty/alacritty.git
     cd alacritty
     cargo build --release
-    infocmp alacritty
+    if [[ $(infocmp alacritty | grep "no match") == *"no match"* ]]; then
+        sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
+    fi
     sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
     sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
     sudo desktop-file-install extra/linux/Alacritty.desktop
