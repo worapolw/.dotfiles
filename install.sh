@@ -12,11 +12,13 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(uname)" == "Linux" ]; then
     DISTRO=$(sudo cat /etc/os-release | head -1 | sed 's/\(NAME=\|"\)//g')
     if [[ "$DISTRO" == *"Ubuntu"* ]]; then
-        FISH_DEB="fish_4.2.1-1~$(lsb_release -sc)_$(dpkg --print-architecture).deb"
-        sudo apt install libtinfo6
-        curl --output-dir ~/Downloads -LO https://launchpad.net/~fish-shell/+archive/ubuntu/release-4/+files/$FISH_DEB \
-            && sudo dpkg -i ~/Downloads/$FISH_DEB \
-            && rm -rf ~/Downloads/$FISH_DEB
+        if ! command -v fish >/dev/null 2>&1; then
+            FISH_DEB="fish_4.2.1-1~$(lsb_release -sc)_$(dpkg --print-architecture).deb"
+            sudo apt install libtinfo6 curl -y
+            curl --output-dir ~/Downloads -LO https://launchpad.net/~fish-shell/+archive/ubuntu/release-4/+files/$FISH_DEB \
+                && sudo dpkg -i ~/Downloads/$FISH_DEB \
+                && rm -rf ~/Downloads/$FISH_DEB
+        fi
         sudo apt update && sudo apt -y upgrade
         # install bat
         sudo apt install -y bat
@@ -41,7 +43,7 @@ elif [ "$(uname)" == "Linux" ]; then
         # install dependencies for alacritty
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | bash -s -- -y
-        sudo apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
+        sudo apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3 build-essential
 
     fi
     if [[ "$DISTRO" == *"Fedora"* ]]; then
@@ -66,6 +68,7 @@ elif [ "$(uname)" == "Linux" ]; then
     sudo desktop-file-install extra/linux/Alacritty.desktop
     sudo update-desktop-database
     cd ..
+    rm -rf alacritty
 fi
 
 # tmux plugin
