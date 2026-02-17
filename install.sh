@@ -12,14 +12,10 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(uname)" == "Linux" ]; then
     DISTRO=$(sudo cat /etc/os-release | head -1 | sed 's/\(NAME=\|"\)//g')
     if [[ "$DISTRO" == *"Ubuntu"* ]]; then
-        if ! command -v fish >/dev/null 2>&1; then
-            FISH_DEB="fish_4.2.1-1~$(lsb_release -sc)_$(dpkg --print-architecture).deb"
-            sudo apt install libtinfo6 curl -y
-            curl --output-dir ~/Downloads -LO https://launchpad.net/~fish-shell/+archive/ubuntu/release-4/+files/$FISH_DEB \
-                && sudo dpkg -i ~/Downloads/$FISH_DEB \
-                && rm -rf ~/Downloads/$FISH_DEB
-        fi
-        sudo apt update && sudo apt -y upgrade
+        sudo add-apt-repository -y ppa:fish-shell/release-4
+        sudo apt update -y
+        sudo apt install -y fish
+        sudo apt update -y && sudo apt upgrade -y
         # install bat
         sudo apt install -y bat
         # install eza
@@ -28,14 +24,14 @@ elif [ "$(uname)" == "Linux" ]; then
         wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --yes --batch --dearmor -o /etc/apt/keyrings/gierens.gpg
         echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
         sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-        sudo apt update
+        sudo apt update -y
         sudo apt install -y eza
         # install fzf
-        sudo apt install fzf
+        sudo apt install -y fzf
         # install git
-        sudo apt install git-all
+        sudo apt install -y git-all
         # install ripgrep
-        sudo apt install ripgrep
+        sudo apt install -y ripgrep
         # install vim
         sudo apt install -y vim
         # install tmux
@@ -43,7 +39,9 @@ elif [ "$(uname)" == "Linux" ]; then
         # install dependencies for alacritty
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | bash -s -- -y
-        sudo apt install cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3 build-essential
+        . "$HOME/.cargo/env"
+        fish -c "source $HOME/.cargo/env.fish"
+        sudo apt install -y cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3 build-essential
 
     fi
     if [[ "$DISTRO" == *"Fedora"* ]]; then
@@ -59,18 +57,23 @@ elif [ "$(uname)" == "Linux" ]; then
         sudo dnf install cmake freetype-devel fontconfig-devel libxcb-devel libxkbcommon-devel g++ -y
     fi
     # Install alacritty
-    git clone https://github.com/alacritty/alacritty.git
-    cd alacritty
-    cargo build --release
-    if [[ $(infocmp alacritty | grep "no match") == *"no match"* ]]; then
-        sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
+    if ! command -v alacritty &> /dev/null
+    then
+        git clone https://github.com/alacritty/alacritty.git
+        cd alacritty
+        cargo build --release
+        if [[ $(infocmp alacritty | grep "no match") == *"no match"* ]]; then
+            sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
+        fi
+        sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
+        sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
+        sudo desktop-file-install extra/linux/Alacritty.desktop
+        sudo update-desktop-database
+        cd ..
+        rm -rf alacritty
     fi
-    sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
-    sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
-    sudo desktop-file-install extra/linux/Alacritty.desktop
-    sudo update-desktop-database
-    cd ..
-    rm -rf alacritty
+    # Add my default config to alacritty
+    ./alacritty_config.sh
 fi
 
 # tmux plugin
