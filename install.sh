@@ -12,6 +12,8 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(uname)" == "Linux" ]; then
     DISTRO=$(sudo cat /etc/os-release | head -1 | sed 's/\(NAME=\|"\)//g')
     if [[ "$DISTRO" == *"Ubuntu"* ]]; then
+        # required to download binary
+        sudo apt install -y curl
         sudo add-apt-repository -y ppa:fish-shell/release-4
         sudo apt update -y
         sudo apt install -y fish
