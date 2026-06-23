@@ -39,6 +39,10 @@ elif [ "$(uname)" == "Linux" ]; then
         sudo apt install -y vim
         # install tmux
         sudo apt install -y tmux
+        # install fastfetch (login banner)
+        sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+        sudo apt update -y
+        sudo apt install -y fastfetch
         # install dependencies for alacritty
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | bash -s -- -y
@@ -49,7 +53,7 @@ elif [ "$(uname)" == "Linux" ]; then
     fi
     if [[ "$DISTRO" == *"Fedora"* ]]; then
         sudo dnf update -y
-        sudo dnf install fish fzf ripgrep vim tmux @development-tools -y
+        sudo dnf install fish fzf ripgrep vim tmux fastfetch @development-tools -y
         # install rustc + cargo
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | bash -s -- -y
@@ -98,9 +102,13 @@ fi
 # Add my default config to ghostty (Berkeley Mono + fish)
 ./ghostty_config.sh
 
-# fish functions (incl. our prompt, which needs the Nerd Font installed above)
+# fish functions (incl. our prompt + fastfetch login greeting; need the Nerd Font above)
 mkdir -p ~/.config/fish/functions
 cp ./fish/functions/*.fish ~/.config/fish/functions/
+
+# fastfetch config (login banner theming)
+mkdir -p ~/.config/fastfetch
+cp ./fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
 
 # tmux plugin
 if [ "$(ls ~/.tmux/plugins | grep tpm)" == "" ]; then
