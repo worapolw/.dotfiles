@@ -36,3 +36,18 @@ endif
 syntax enable
 
 colorscheme cinnabar
+
+" Transparent background — fall back to the terminal's background color
+augroup TransparentBackground
+  autocmd!
+  autocmd ColorScheme * highlight Normal      ctermbg=NONE guibg=NONE
+  autocmd ColorScheme * highlight NonText     ctermbg=NONE guibg=NONE
+  autocmd ColorScheme * highlight LineNr      ctermbg=NONE guibg=NONE
+  autocmd ColorScheme * highlight SignColumn  ctermbg=NONE guibg=NONE
+  autocmd ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
+augroup END
+highlight Normal      ctermbg=NONE guibg=NONE
+highlight NonText     ctermbg=NONE guibg=NONE
+highlight LineNr      ctermbg=NONE guibg=NONE
+highlight SignColumn  ctermbg=NONE guibg=NONE
+highlight EndOfBuffer ctermbg=NONE guibg=NONE

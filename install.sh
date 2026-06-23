@@ -58,25 +58,48 @@ elif [ "$(uname)" == "Linux" ]; then
         # install dependencies for alacritty
         sudo dnf install cmake freetype-devel fontconfig-devel libxcb-devel libxkbcommon-devel g++ -y
     fi
-    # Install alacritty
-    if ! command -v alacritty &> /dev/null
-    then
-        git clone https://github.com/alacritty/alacritty.git
-        cd alacritty
-        cargo build --release
-        if [[ $(infocmp alacritty | grep "no match") == *"no match"* ]]; then
-            sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
+    # Install alacritty (disabled — using Ghostty)
+    # if ! command -v alacritty &> /dev/null
+    # then
+    #     git clone https://github.com/alacritty/alacritty.git
+    #     cd alacritty
+    #     cargo build --release
+    #     if [[ $(infocmp alacritty | grep "no match") == *"no match"* ]]; then
+    #         sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
+    #     fi
+    #     sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
+    #     sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
+    #     sudo desktop-file-install extra/linux/Alacritty.desktop
+    #     sudo update-desktop-database
+    #     cd ..
+    #     rm -rf alacritty
+    # fi
+    # # Add my default config to alacritty
+    # ./alacritty_config.sh
+
+    # install Symbols Nerd Font (terminal icons: OS logos, glyphs)
+    mkdir -p "$HOME/.local/share/fonts/SymbolsNerdFont"
+    curl -fLo /tmp/NerdFontsSymbolsOnly.tar.xz \
+        https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.tar.xz
+    tar -xf /tmp/NerdFontsSymbolsOnly.tar.xz -C "$HOME/.local/share/fonts/SymbolsNerdFont"
+    fc-cache -f
+
+    # install Ghostty (per official docs: ghostty.org/docs/install/binary)
+    if ! command -v ghostty &> /dev/null; then
+        if [[ "$DISTRO" == *"Fedora"* ]]; then
+            sudo dnf copr enable -y scottames/ghostty && sudo dnf install -y ghostty
+        elif [[ "$DISTRO" == *"Ubuntu"* ]]; then
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
         fi
-        sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
-        sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
-        sudo desktop-file-install extra/linux/Alacritty.desktop
-        sudo update-desktop-database
-        cd ..
-        rm -rf alacritty
     fi
-    # Add my default config to alacritty
-    ./alacritty_config.sh
 fi
+
+# Add my default config to ghostty (Berkeley Mono + fish)
+./ghostty_config.sh
+
+# fish functions (incl. our prompt, which needs the Nerd Font installed above)
+mkdir -p ~/.config/fish/functions
+cp ./fish/functions/*.fish ~/.config/fish/functions/
 
 # tmux plugin
 if [ "$(ls ~/.tmux/plugins | grep tpm)" == "" ]; then
