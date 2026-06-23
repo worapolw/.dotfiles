@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Deploy the Ghostty config (Berkeley Mono + fish). Mirrors alacritty_config.sh.
 GHOSTTY_CONFIG_PATH="$HOME/.config/ghostty"
 FISH_PATH=$(which fish)

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Formac only
 if [ "$(uname)" == "Darwin" ]; then
@@ -10,7 +11,7 @@ if [ "$(uname)" == "Darwin" ]; then
     fi
     brew bundle install
 elif [ "$(uname)" == "Linux" ]; then
-    DISTRO=$(sudo cat /etc/os-release | head -1 | sed 's/\(NAME=\|"\)//g')
+    DISTRO=$(grep '^NAME=' /etc/os-release | sed 's/\(NAME=\|"\)//g')
     if [[ "$DISTRO" == *"Ubuntu"* ]]; then
         # required to download binary
         sudo apt install -y curl

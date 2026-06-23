@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 ALACRITTY_CONFIG_PATH="$HOME/.config/alacritty"
 FISH_PATH=$(which fish)
 mkdir -p "$ALACRITTY_CONFIG_PATH"
