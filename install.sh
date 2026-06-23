@@ -1,12 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-# Formac only
+RAW="https://raw.githubusercontent.com/worapolw/.dotfiles/main"
+dl() { curl -fsSL "$RAW/$1" -o "$2"; }
+
+# macOS only
 if [ "$(uname)" == "Darwin" ]; then
-    # install HomeBrew
     if [ "brew -v" == "" ]; then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-         echo >> ~/.zprofile\n    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile\n    eval "$(/opt/homebrew/bin/brew shellenv)"
+        echo >> ~/.zprofile\n    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile\n    eval "$(/opt/homebrew/bin/brew shellenv)"
         fish -c "fish_add_path /opt/homebrew/bin"
     fi
     brew bundle install
@@ -63,24 +65,6 @@ elif [ "$(uname)" == "Linux" ]; then
         # install dependencies for alacritty
         sudo dnf install cmake freetype-devel fontconfig-devel libxcb-devel libxkbcommon-devel g++ -y
     fi
-    # Install alacritty (disabled — using Ghostty)
-    # if ! command -v alacritty &> /dev/null
-    # then
-    #     git clone https://github.com/alacritty/alacritty.git
-    #     cd alacritty
-    #     cargo build --release
-    #     if [[ $(infocmp alacritty | grep "no match") == *"no match"* ]]; then
-    #         sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
-    #     fi
-    #     sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
-    #     sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
-    #     sudo desktop-file-install extra/linux/Alacritty.desktop
-    #     sudo update-desktop-database
-    #     cd ..
-    #     rm -rf alacritty
-    # fi
-    # # Add my default config to alacritty
-    # ./alacritty_config.sh
 
     # install Symbols Nerd Font (terminal icons: OS logos, glyphs)
     mkdir -p "$HOME/.local/share/fonts/SymbolsNerdFont"
@@ -100,47 +84,71 @@ elif [ "$(uname)" == "Linux" ]; then
 fi
 
 # Add my default config to ghostty (Berkeley Mono + fish)
-./ghostty_config.sh
+curl -fsSL "$RAW/ghostty_config.sh" | bash
 
 # fish functions (incl. our prompt + fastfetch login greeting; need the Nerd Font above)
 mkdir -p ~/.config/fish/functions
-cp ./fish/functions/*.fish ~/.config/fish/functions/
+dl fish/functions/fish_prompt.fish   ~/.config/fish/functions/fish_prompt.fish
+dl fish/functions/ls.fish            ~/.config/fish/functions/ls.fish
+dl fish/functions/fish_greeting.fish ~/.config/fish/functions/fish_greeting.fish
 
 # fastfetch config (login banner theming)
 mkdir -p ~/.config/fastfetch
-cp ./fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
+dl fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
 
 # tmux plugin
-if [ "$(ls ~/.tmux/plugins | grep tpm)" == "" ]; then
+if [ "$(ls ~/.tmux/plugins 2>/dev/null | grep tpm)" == "" ]; then
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
-
-cp ./.tmux.conf ~/.tmux.conf
+dl .tmux.conf ~/.tmux.conf
 if [ "$(which fish)" != "" ]; then
     echo -e "set-option -g default-shell $(which fish)" >> ~/.tmux.conf
 fi
 
 # gitconfig --global
-cp ./git/.gitconfig ~/.gitconfig
+dl git/.gitconfig ~/.gitconfig
 
 # bashrc
-if ! grep -q "alias ls=eza" ~/.bashrc; then
-    echo -e "alias ls=eza" >> ~/.bashrc
+if ! grep -q "alias ls=eza" ~/.bashrc 2>/dev/null; then
+    echo "alias ls=eza" >> ~/.bashrc
 fi
 
 # zshrc
-if ! grep -q "alias ls=eza" ~/.zshrc; then
-    echo -e "alias ls=eza" >> ~/.zshrc
+if ! grep -q "alias ls=eza" ~/.zshrc 2>/dev/null; then
+    echo "alias ls=eza" >> ~/.zshrc
 fi
 
-# fish alias 
+# fish alias
 fish -c "alias --save ls eza"
 
-# download vim plug plugin
-if [ "$(ls ~/.vim/autoload | grep plug.vim)" == "" ]; then
-    curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+# install Claude Code
+if ! command -v claude &> /dev/null; then
+    curl -fsSL https://claude.ai/install.sh | bash
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.config/fish/config.fish
+    fish -c "source ~/.config/fish/config.fish"
 fi
 
-cp ./vim/.vimrc ~/.vimrc
-cp -r ./vim/.vim ~/
+# Claude Code status line config
+mkdir -p ~/.claude
+dl claude/statusline.sh ~/.claude/statusline.sh
+chmod +x ~/.claude/statusline.sh
+CLAUDE_SETTINGS=~/.claude/settings.json
+if [ -f "$CLAUDE_SETTINGS" ]; then
+    tmp=$(mktemp)
+    jq '. * {"statusLine": {"type": "command", "command": "~/.claude/statusline.sh"}}' "$CLAUDE_SETTINGS" > "$tmp" && mv "$tmp" "$CLAUDE_SETTINGS"
+else
+    dl claude/settings.json "$CLAUDE_SETTINGS"
+fi
 
+# vim-plug
+if [ ! -f ~/.vim/autoload/plug.vim ]; then
+    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+fi
+dl vim/.vimrc ~/.vimrc
+mkdir -p ~/.vim/after/plugin ~/.vim/after/ftplugin
+dl vim/.vim/after/plugin/vim-airline-themes.vim ~/.vim/after/plugin/vim-airline-themes.vim
+dl vim/.vim/after/plugin/fzf.vim                ~/.vim/after/plugin/fzf.vim
+dl vim/.vim/after/ftplugin/typescript.vim       ~/.vim/after/ftplugin/typescript.vim
+dl vim/.vim/after/ftplugin/typescriptreact.vim  ~/.vim/after/ftplugin/typescriptreact.vim
+dl vim/.vim/after/ftplugin/rust.vim             ~/.vim/after/ftplugin/rust.vim
