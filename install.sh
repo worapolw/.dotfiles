@@ -73,18 +73,32 @@ elif [ "$(uname)" == "Linux" ]; then
     tar -xf /tmp/NerdFontsSymbolsOnly.tar.xz -C "$HOME/.local/share/fonts/SymbolsNerdFont"
     fc-cache -f
 
-    # install Ghostty (per official docs: ghostty.org/docs/install/binary)
-    if ! command -v ghostty &> /dev/null; then
+    # install foot (Wayland terminal)
+    if ! command -v foot &> /dev/null; then
         if [[ "$DISTRO" == *"Fedora"* ]]; then
-            sudo dnf copr enable -y scottames/ghostty && sudo dnf install -y ghostty
+            sudo dnf install -y foot
         elif [[ "$DISTRO" == *"Ubuntu"* ]]; then
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
+            sudo apt install -y foot
         fi
     fi
 fi
 
-# Add my default config to ghostty (Berkeley Mono + fish)
-curl -fsSL "$RAW/ghostty_config.sh" | bash
+# Deploy terminal config (Berkeley Mono + fish)
+if [ "$(uname)" == "Darwin" ]; then
+    curl -fsSL "$RAW/ghostty_config.sh" | bash
+else
+    curl -fsSL "$RAW/foot_config.sh" | bash
+    # make foot the default terminal + hide the server/client launchers
+    mkdir -p ~/.local/share/applications
+    printf 'foot.desktop\n' > ~/.config/xdg-terminals.list
+    fish -c "set -Ux TERMINAL foot"
+    sudo update-alternatives --set x-terminal-emulator /usr/bin/foot || true
+    for f in foot-server footclient; do
+        cp "/usr/share/applications/$f.desktop" ~/.local/share/applications/ 2>/dev/null \
+            && printf 'NoDisplay=true\n' >> ~/.local/share/applications/$f.desktop
+    done
+    update-desktop-database ~/.local/share/applications 2>/dev/null || true
+fi
 
 # fish functions (incl. our prompt + fastfetch login greeting; need the Nerd Font above)
 mkdir -p ~/.config/fish/functions
