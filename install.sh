@@ -106,9 +106,10 @@ dl fish/functions/fish_prompt.fish   ~/.config/fish/functions/fish_prompt.fish
 dl fish/functions/ls.fish            ~/.config/fish/functions/ls.fish
 dl fish/functions/fish_greeting.fish ~/.config/fish/functions/fish_greeting.fish
 
-# fastfetch config (login banner theming)
+# fastfetch config (login banner theming) + custom cat logo
 mkdir -p ~/.config/fastfetch
-dl fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
+dl fastfetch/config.jsonc  ~/.config/fastfetch/config.jsonc
+dl fastfetch/cat-logo.txt  ~/.config/fastfetch/cat-logo.txt
 
 # tmux plugin
 if [ "$(ls ~/.tmux/plugins 2>/dev/null | grep tpm)" == "" ]; then
