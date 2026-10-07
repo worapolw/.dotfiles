@@ -55,13 +55,12 @@ elif [ "$(uname)" == "Linux" ]; then
     fi
     if [[ "$DISTRO" == *"Fedora"* ]]; then
         sudo dnf update -y
-        sudo dnf install fish fzf ripgrep vim tmux fastfetch @development-tools -y
+        sudo dnf install fish fzf ripgrep vim tmux fastfetch eza @development-tools -y
         # install rustc + cargo
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | bash -s -- -y
         . "$HOME/.cargo/env"
         fish -c "source $HOME/.cargo/env.fish"
-        cargo install eza
         # install dependencies for alacritty
         sudo dnf install cmake freetype-devel fontconfig-devel libxcb-devel libxkbcommon-devel g++ -y
     fi
