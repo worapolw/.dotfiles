@@ -6,12 +6,20 @@ dl() { curl -fsSL "$RAW/$1" -o "$2"; }
 
 # macOS only
 if [ "$(uname)" == "Darwin" ]; then
-    if [ "brew -v" == "" ]; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        echo >> ~/.zprofile\n    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile\n    eval "$(/opt/homebrew/bin/brew shellenv)"
-        fish -c "fish_add_path /opt/homebrew/bin"
+    if ! command -v brew &> /dev/null; then
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        # Apple Silicon -> /opt/homebrew, Intel -> /usr/local
+        BREW_BIN=/opt/homebrew/bin/brew
+        [ -x "$BREW_BIN" ] || BREW_BIN=/usr/local/bin/brew
+        echo >> ~/.zprofile
+        echo "eval \"\$($BREW_BIN shellenv)\"" >> ~/.zprofile
+        eval "$($BREW_BIN shellenv)"
     fi
-    brew bundle install
+    # Brewfile isn't on disk in a curl | bash run, so download it first
+    dl Brewfile /tmp/Brewfile
+    brew bundle install --file=/tmp/Brewfile
+    # fish only exists after the bundle, so add brew to its PATH here
+    fish -c "fish_add_path $(brew --prefix)/bin"
 elif [ "$(uname)" == "Linux" ]; then
     DISTRO=$(grep '^NAME=' /etc/os-release | sed 's/\(NAME=\|"\)//g')
     if [[ "$DISTRO" == *"Ubuntu"* ]]; then
@@ -45,22 +53,12 @@ elif [ "$(uname)" == "Linux" ]; then
         sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
         sudo apt update -y
         sudo apt install -y fastfetch
-        # install dependencies for alacritty
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-            | bash -s -- -y
-        . "$HOME/.cargo/env"
-        fish -c "source $HOME/.cargo/env.fish"
         sudo apt install -y cmake g++ pkg-config libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3 build-essential
 
     fi
     if [[ "$DISTRO" == *"Fedora"* ]]; then
         sudo dnf update -y
         sudo dnf install fish fzf ripgrep vim tmux fastfetch eza @development-tools -y
-        # install rustc + cargo
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-            | bash -s -- -y
-        . "$HOME/.cargo/env"
-        fish -c "source $HOME/.cargo/env.fish"
         # install dependencies for alacritty
         sudo dnf install cmake freetype-devel fontconfig-devel libxcb-devel libxkbcommon-devel g++ -y
     fi
@@ -82,6 +80,7 @@ elif [ "$(uname)" == "Linux" ]; then
     fi
 fi
 
+
 # Deploy terminal config (Berkeley Mono + fish)
 if [ "$(uname)" == "Darwin" ]; then
     curl -fsSL "$RAW/ghostty_config.sh" | bash
@@ -98,6 +97,23 @@ else
     done
     update-desktop-database ~/.local/share/applications 2>/dev/null || true
 fi
+
+# install mise (installs to ~/.local/bin, which may not be on PATH yet)
+export PATH="$HOME/.local/bin:$PATH"
+if ! command -v mise &> /dev/null; then
+    curl -fsSL https://mise.run | sh
+fi
+
+activation='eval "$(mise activate bash)"'
+grep -qxF "$activation" ~/.bashrc 2>/dev/null || printf '%s\n' "$activation" >> ~/.bashrc
+
+mkdir -p ~/.config/fish
+activation='mise activate fish | source'
+grep -qxF "$activation" ~/.config/fish/config.fish 2>/dev/null || printf '%s\n' "$activation" >> ~/.config/fish/config.fish
+
+# mise shell completion
+mise completion bash --install
+mise completion fish --install
 
 # fish functions (incl. our prompt + fastfetch login greeting; need the Nerd Font above)
 mkdir -p ~/.config/fish/functions
