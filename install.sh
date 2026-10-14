@@ -158,14 +158,14 @@ if ! command -v claude &> /dev/null; then
     fish -c "source ~/.config/fish/config.fish"
 fi
 
-# Claude Code status line config
+# Claude Code status line config + classic TUI renderer
 mkdir -p ~/.claude
 dl claude/statusline.sh ~/.claude/statusline.sh
 chmod +x ~/.claude/statusline.sh
 CLAUDE_SETTINGS=~/.claude/settings.json
 if [ -f "$CLAUDE_SETTINGS" ]; then
     tmp=$(mktemp)
-    jq '. * {"statusLine": {"type": "command", "command": "~/.claude/statusline.sh"}}' "$CLAUDE_SETTINGS" > "$tmp" && mv "$tmp" "$CLAUDE_SETTINGS"
+    jq '. * {"statusLine": {"type": "command", "command": "~/.claude/statusline.sh"}, "tui": "default"}' "$CLAUDE_SETTINGS" > "$tmp" && mv "$tmp" "$CLAUDE_SETTINGS"
 else
     dl claude/settings.json "$CLAUDE_SETTINGS"
 fi
