@@ -1,6 +1,6 @@
 # .dotfiles
 
-My personal dev environment: fish, tmux, vim, eza, fzf, ripgrep, fastfetch, mise, Claude Code, plus terminal config (foot on Linux, Ghostty on macOS).
+My personal dev environment: fish, tmux, vim, eza, fzf, ripgrep, fastfetch, mise, Claude Code, plus terminal config (foot on Linux, kitty on macOS).
 
 ## Install
 
@@ -27,13 +27,13 @@ cd ~/.dotfiles
 | ------ | --------------------------- | -------- |
 | Fedora | `dnf`                       | foot     |
 | Ubuntu | `apt` (+ PPAs for fish 4, fastfetch, eza) | foot     |
-| macOS  | Homebrew (`Brewfile`)       | Ghostty  |
+| macOS  | Homebrew (`Brewfile`)       | kitty    |
 
 ## What it does
 
 - **Packages**: fish, fzf, ripgrep, vim, tmux, eza, bat, fastfetch, git
 - **Fonts**: Symbols Nerd Font (Linux; via cask on macOS). The terminal configs expect **Berkeley Mono**, which isn't free, so install it yourself.
-- **Terminal**: foot config, set as the default terminal (Linux), or Ghostty config (macOS)
+- **Terminal**: foot config, set as the default terminal (Linux), or kitty config (macOS)
 - **mise**: installed to `~/.local/bin`, activated in bash and fish, with shell completions
 - **fish**: custom prompt, `ls` → `eza`, fastfetch login greeting with a cat logo
 - **tmux**: [tpm](https://github.com/tmux-plugins/tpm) + `.tmux.conf`, with fish as the default shell

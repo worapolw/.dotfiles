@@ -83,7 +83,7 @@ fi
 
 # Deploy terminal config (Berkeley Mono + fish)
 if [ "$(uname)" == "Darwin" ]; then
-    curl -fsSL "$RAW/ghostty_config.sh" | bash
+    curl -fsSL "$RAW/kitty_config.sh" | bash
 else
     curl -fsSL "$RAW/foot_config.sh" | bash
     # make foot the default terminal + hide the server/client launchers

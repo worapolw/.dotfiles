@@ -1,7 +1,7 @@
 # Minimal one-line prompt — eza-style "drwx" path coloring
 #   <os>  ~/dev/app/src/ui/button  main * ❯
 #   os    : Nerd Font logo for the running OS (Apple on macOS, distro logo on
-#           Linux), brand-colored. Needs a Nerd Font (Ghostty bundles one).
+#           Linux), brand-colored. Needs a Nerd Font (kitty bundles one).
 #           Glyphs are written as \uXXXX escapes and expanded by printf.
 #   path  : each segment cycles through eza permission colors d→r→w→x
 #             d = blue (0087ff)   r = yellow (ffd700)
