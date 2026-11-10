@@ -1,13 +1,53 @@
 #!/bin/bash
 set -euo pipefail
-# Deploy the kitty config (Berkeley Mono + fish).
+# Deploy the kitty config (Berkeley Mono + fish, Alacritty-like look).
 KITTY_CONFIG_PATH="$HOME/.config/kitty"
 FISH_PATH=$(which fish)
 mkdir -p "$KITTY_CONFIG_PATH"
 cat <<EOC > "$KITTY_CONFIG_PATH/kitty.conf"
 shell $FISH_PATH
 font_family Berkeley Mono
-font_size 18
+font_size 16
 background_opacity 1.0
 map cmd+t no_op
+
+# Alacritty default colors
+background #181818
+foreground #d8d8d8
+
+# Alacritty default 16-color palette
+color0  #181818
+color1  #ac4242
+color2  #90a959
+color3  #f4bf75
+color4  #6a9fb5
+color5  #aa759f
+color6  #75b5aa
+color7  #d8d8d8
+color8  #6b6b6b
+color9  #c55555
+color10 #aac474
+color11 #feca88
+color12 #82b8c8
+color13 #c28cb8
+color14 #93d3c3
+color15 #f8f8f8
+
+# Alacritty-like display behavior
+# Cursor: solid block, no blinking, inverts the cell under it
+cursor_shape block
+cursor_blink_interval 0
+cursor none
+cursor_trail 0
+# Selection: reverse video (swap text and background colors)
+selection_foreground none
+selection_background none
+# Grid anchored to the top-left with no padding (kitty centers it by default)
+window_padding_width 0
+placement_strategy top-left
+# Standard macOS titlebar, no tab bar, no bell sound
+macos_titlebar_color system
+tab_bar_style hidden
+enable_audio_bell no
+visual_bell_duration 0
 EOC
