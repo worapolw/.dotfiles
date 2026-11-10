@@ -1,4 +1,3 @@
-tap "homebrew/bundle"
 brew "bat"
 brew "eza"
 brew "fish"
